@@ -1,0 +1,39 @@
+{
+  "n": {
+    ".read": true,
+    "$b": {
+      ".write": "auth != null && newData.exists()",
+      ".validate": "$b.matches(/^b(10|[0-9])$/) && newData.hasChildren(['c', 'h']) && ((!data.exists() && newData.child('c').val() === 1) || (data.exists() && newData.child('c').val() === data.child('c').val() + 1)) && !root.child('kaiho/u/' + newData.child('h').val()).exists() && newData.parent().parent().child('u/' + newData.child('h').val()).val() === $b",
+      "c": { ".validate": "newData.isNumber()" },
+      "h": { ".validate": "newData.isString() && newData.val().matches(/^[0-9a-z]{8,16}$/)" },
+      "$o": { ".validate": false }
+    }
+  },
+  "u": {
+    "$h": {
+      ".read": true,
+      ".write": "auth != null && !data.exists() && newData.exists()",
+      ".validate": "$h.matches(/^[0-9a-z]{8,16}$/) && newData.isString() && newData.val().matches(/^b(10|[0-9])$/) && newData.parent().parent().child('n/' + newData.val() + '/h').val() === $h"
+    }
+  },
+  "kc": {
+    ".read": true,
+    ".write": "auth != null && newData.exists()",
+    ".validate": "newData.hasChildren(['c', 'h']) && ((!data.exists() && newData.child('c').val() === 101) || (data.exists() && newData.child('c').val() === data.child('c').val() + 1)) && !root.child('kaiho/k/' + newData.child('h').val()).exists() && newData.parent().child('k/' + newData.child('h').val() + '/i').val() === newData.child('c').val()",
+    "c": { ".validate": "newData.isNumber()" },
+    "h": { ".validate": "newData.isString() && newData.val().matches(/^[0-9a-z]{8,16}$/)" },
+    "$o": { ".validate": false }
+  },
+  "k": {
+    ".read": true,
+    ".indexOn": ["i"],
+    "$h": {
+      ".write": "auth != null && !data.exists() && newData.exists()",
+      ".validate": "$h.matches(/^[0-9a-z]{8,16}$/) && newData.hasChildren(['i', 'n', 'f']) && newData.parent().parent().child('kc/h').val() === $h && newData.child('i').val() === newData.parent().parent().child('kc/c').val()",
+      "i": { ".validate": "newData.isNumber()" },
+      "n": { ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 30" },
+      "f": { ".validate": "newData.isNumber() && newData.val() >= 80 && newData.val() <= 99 && newData.val() % 1 === 0" },
+      "$o": { ".validate": false }
+    }
+  }
+}

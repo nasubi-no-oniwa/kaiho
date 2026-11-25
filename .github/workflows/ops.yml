@@ -1,0 +1,35 @@
+# 管理用：ルールがねらいどおりに働くかの確認（test）と、記録を全部消す（reset）。手で動かすときだけ動く
+name: 管理（ルールの確認・記録を消す）
+on:
+  workflow_dispatch:
+    inputs:
+      op:
+        description: "test（ルールの確認）か reset（記録を全部消す）"
+        required: true
+        default: test
+concurrency:
+  group: kaiho-ops
+  cancel-in-progress: false
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: 道具を入れる
+        run: mkdir -p "$RUNNER_TEMP/x" && cd "$RUNNER_TEMP/x" && npm init -y >/dev/null && npm i google-auth-library@9 --silent
+      - name: 鍵を一時ファイルに書く
+        env:
+          SA: ${{ secrets.OTOKONOJI_SERVICE_ACCOUNT }}
+        run: |
+          if [ -z "$SA" ]; then echo "OTOKONOJI_SERVICE_ACCOUNT が登録されていません"; exit 1; fi
+          printf '%s' "$SA" > "$RUNNER_TEMP/sa.json"
+      - name: 実行
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ runner.temp }}/sa.json
+        run: node tools/ops.mjs "${{ inputs.op }}"
+      - name: 鍵を消す
+        if: always()
+        run: rm -f "$RUNNER_TEMP/sa.json"
